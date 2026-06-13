@@ -2,6 +2,7 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from '@tailwindcss/vite'
 
+const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:5000";
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -10,11 +11,11 @@ export default defineConfig({
     allowedHosts: true,
     proxy: {
       "/api": {
-        target: "http://localhost:5000",
+        target: BACKEND_URL,
         changeOrigin: true,
       },
       "/uploads": {
-        target: "http://localhost:5000",
+        target: BACKEND_URL,
         changeOrigin: true,
       },
     },
