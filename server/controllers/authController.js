@@ -164,18 +164,17 @@ export const deleteAdmin = async (req, res) => {
   const { id } = req.params;
 
   try {
-    const adminId = parseInt(id, 10);
-    if (isNaN(adminId)) {
+    if (!id) {
       return res.status(400).json({ error: "Invalid Admin ID parameter." });
     }
 
     // Prevent self deletion
-    if (adminId === req.user.id) {
+    if (id === req.user.id) {
       return res.status(400).json({ error: "Self-deletion is not permitted." });
     }
 
     const targetAdmin = await prisma.admin.findUnique({
-      where: { id: adminId },
+      where: { id },
       select: { username: true }
     });
 
@@ -184,7 +183,7 @@ export const deleteAdmin = async (req, res) => {
     }
 
     await prisma.admin.delete({
-      where: { id: adminId },
+      where: { id },
     });
 
     await logActivity(req.user.id, "DELETE", "Admins", `Deleted administrative account: ${targetAdmin.username}`, req);

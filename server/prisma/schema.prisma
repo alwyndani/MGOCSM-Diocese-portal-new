@@ -1,6 +1,6 @@
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
 }
 
 generator client {
@@ -8,7 +8,7 @@ generator client {
 }
 
 model Admin {
-  id           Int           @id @default(autoincrement())
+  id           String        @id @default(auto()) @map("_id") @db.ObjectId
   username     String        @unique
   email        String        @unique
   passwordHash String
@@ -19,7 +19,7 @@ model Admin {
 }
 
 model Kalpana {
-  id            Int      @id @default(autoincrement())
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
   title         String
   description   String?
   documentUrl   String?
@@ -30,7 +30,7 @@ model Kalpana {
 }
 
 model TeamMember {
-  id           Int      @id @default(autoincrement())
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
   name         String
   designation  String
   category     String   // CORE_LEADER, DISTRICT_PRESIDENT, DISTRICT_SECRETARY
@@ -43,7 +43,7 @@ model TeamMember {
 }
 
 model Event {
-  id            String         @id // Unique slug, e.g. "silentium-2k25"
+  id            String         @id @map("_id") // Unique slug, e.g. "silentium-2k25"
   title         String
   description   String?
   eventDate     DateTime
@@ -55,7 +55,7 @@ model Event {
 }
 
 model GalleryMedia {
-  id           Int      @id @default(autoincrement())
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
   eventId      String
   event        Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
   type         String   // IMAGE or VIDEO
@@ -66,7 +66,7 @@ model GalleryMedia {
 }
 
 model Article {
-  id            Int      @id @default(autoincrement())
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
   title         String
   slug          String   @unique
   content       String
@@ -79,8 +79,8 @@ model Article {
 }
 
 model ActivityLog {
-  id          Int      @id @default(autoincrement())
-  adminId     Int?
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  adminId     String?  @db.ObjectId
   admin       Admin?   @relation(fields: [adminId], references: [id], onDelete: SetNull)
   action      String   // CREATE, UPDATE, DELETE, LOGIN
   module      String   // Kalpanas, TeamMembers, Events, Gallery, Articles, Admins

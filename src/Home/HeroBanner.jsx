@@ -93,7 +93,11 @@ const HeroBanner = () => {
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 1.5 }}
-          className="absolute inset-0 w-full h-full object-cover object-center"
+          className={`absolute w-full object-cover ${
+            isMobile
+              ? "inset-x-0 top-0 h-[calc(100%+60px)] object-top"
+              : "inset-0 h-full object-center"
+          }`}
         />
       </AnimatePresence>
 

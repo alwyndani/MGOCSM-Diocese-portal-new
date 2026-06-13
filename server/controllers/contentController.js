@@ -146,13 +146,12 @@ export const updateKalpana = async (req, res) => {
   const { title, description, displayOrder, isVisible, publishedDate, removeDocument } = req.body;
 
   try {
-    const kalpanaId = parseInt(id, 10);
-    if (isNaN(kalpanaId)) {
+    if (!id) {
       return res.status(400).json({ error: "Invalid Kalpana ID." });
     }
 
     const currentKalpana = await prisma.kalpana.findUnique({
-      where: { id: kalpanaId }
+      where: { id }
     });
 
     if (!currentKalpana) {
@@ -171,7 +170,7 @@ export const updateKalpana = async (req, res) => {
     }
 
     const updatedKalpana = await prisma.kalpana.update({
-      where: { id: kalpanaId },
+      where: { id },
       data: {
         title: title || currentKalpana.title,
         description: description !== undefined ? description : currentKalpana.description,
@@ -196,13 +195,12 @@ export const deleteKalpana = async (req, res) => {
   const { id } = req.params;
 
   try {
-    const kalpanaId = parseInt(id, 10);
-    if (isNaN(kalpanaId)) {
+    if (!id) {
       return res.status(400).json({ error: "Invalid Kalpana ID." });
     }
 
     const currentKalpana = await prisma.kalpana.findUnique({
-      where: { id: kalpanaId }
+      where: { id }
     });
 
     if (!currentKalpana) {
@@ -213,7 +211,7 @@ export const deleteKalpana = async (req, res) => {
     removeFile(currentKalpana.documentUrl);
 
     await prisma.kalpana.delete({
-      where: { id: kalpanaId }
+      where: { id }
     });
 
     await logActivity(req.user.id, "DELETE", "Kalpanas", `Deleted Kalpana: "${currentKalpana.title}"`, req);
@@ -286,12 +284,11 @@ export const updateTeamMember = async (req, res) => {
   const { name, designation, category, district, contactEmail, contactPhone, displayOrder, removeImage } = req.body;
 
   try {
-    const memberId = parseInt(id, 10);
-    if (isNaN(memberId)) {
+    if (!id) {
       return res.status(400).json({ error: "Invalid Member ID." });
     }
 
-    const member = await prisma.teamMember.findUnique({ where: { id: memberId } });
+    const member = await prisma.teamMember.findUnique({ where: { id } });
     if (!member) {
       return res.status(404).json({ error: "Leadership profile not found." });
     }
@@ -307,7 +304,7 @@ export const updateTeamMember = async (req, res) => {
     }
 
     const updated = await prisma.teamMember.update({
-      where: { id: memberId },
+      where: { id },
       data: {
         name: name || member.name,
         designation: designation || member.designation,
@@ -334,19 +331,18 @@ export const deleteTeamMember = async (req, res) => {
   const { id } = req.params;
 
   try {
-    const memberId = parseInt(id, 10);
-    if (isNaN(memberId)) {
+    if (!id) {
       return res.status(400).json({ error: "Invalid Member ID." });
     }
 
-    const member = await prisma.teamMember.findUnique({ where: { id: memberId } });
+    const member = await prisma.teamMember.findUnique({ where: { id } });
     if (!member) {
       return res.status(404).json({ error: "Leadership profile not found." });
     }
 
     removeFile(member.imageUrl);
 
-    await prisma.teamMember.delete({ where: { id: memberId } });
+    await prisma.teamMember.delete({ where: { id } });
 
     await logActivity(req.user.id, "DELETE", "TeamMembers", `Deleted Team Member: "${member.name}"`, req);
 
@@ -642,13 +638,12 @@ export const deleteGalleryMedia = async (req, res) => {
   const { mediaId } = req.params;
 
   try {
-    const id = parseInt(mediaId, 10);
-    if (isNaN(id)) {
+    if (!mediaId) {
       return res.status(400).json({ error: "Invalid media record ID." });
     }
 
     const item = await prisma.galleryMedia.findUnique({
-      where: { id },
+      where: { id: mediaId },
       include: { event: true }
     });
 
@@ -660,7 +655,7 @@ export const deleteGalleryMedia = async (req, res) => {
     removeFile(item.mediaUrl);
 
     // Delete record
-    await prisma.galleryMedia.delete({ where: { id } });
+    await prisma.galleryMedia.delete({ where: { id: mediaId } });
 
     await logActivity(req.user.id, "DELETE", "Gallery", `Deleted media asset from event: "${item.event.title}"`, req);
 
@@ -804,12 +799,11 @@ export const updateArticle = async (req, res) => {
   const { title, content, authorName, category, status, publishDate, removeImage } = req.body;
 
   try {
-    const articleId = parseInt(id, 10);
-    if (isNaN(articleId)) {
+    if (!id) {
       return res.status(400).json({ error: "Invalid Article ID." });
     }
 
-    const article = await prisma.article.findUnique({ where: { id: articleId } });
+    const article = await prisma.article.findUnique({ where: { id } });
     if (!article) {
       return res.status(404).json({ error: "Article not found." });
     }
@@ -829,7 +823,7 @@ export const updateArticle = async (req, res) => {
     if (title && title !== article.title) {
       slug = generateSlug(title);
       const duplicate = await prisma.article.findFirst({
-        where: { slug, NOT: { id: articleId } }
+        where: { slug, NOT: { id } }
       });
       if (duplicate) {
         return res.status(400).json({ error: "An article with this updated title (or URL slug) already exists." });
@@ -839,7 +833,7 @@ export const updateArticle = async (req, res) => {
     const cleanContent = content !== undefined ? sanitizeHTML(content) : article.content;
 
     const updated = await prisma.article.update({
-      where: { id: articleId },
+      where: { id },
       data: {
         title: title || article.title,
         slug,
@@ -866,19 +860,18 @@ export const deleteArticle = async (req, res) => {
   const { id } = req.params;
 
   try {
-    const articleId = parseInt(id, 10);
-    if (isNaN(articleId)) {
+    if (!id) {
       return res.status(400).json({ error: "Invalid Article ID." });
     }
 
-    const article = await prisma.article.findUnique({ where: { id: articleId } });
+    const article = await prisma.article.findUnique({ where: { id } });
     if (!article) {
       return res.status(404).json({ error: "Article not found." });
     }
 
     removeFile(article.featuredImage);
 
-    await prisma.article.delete({ where: { id: articleId } });
+    await prisma.article.delete({ where: { id } });
 
     await logActivity(req.user.id, "DELETE", "Articles", `Deleted Article: "${article.title}"`, req);
 
