@@ -41,7 +41,7 @@ const Members = () => {
         <h2 className="text-5xl md:text-6xl font-serif text-[#1E1E24] tracking-wide">
           Spiritual Leadership
         </h2>
-        <div className="w-32 h-[2px] bg-[#D4AF37] mx-auto mt-8"></div>
+        <div className="w-32 h-1 bg-gradient-to-r from-[#DB2D0B] to-[#ffb6a0] mx-auto mt-8 rounded-full"></div>
       </motion.div>
 
       {/* Members */}

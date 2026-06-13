@@ -1,7 +1,7 @@
 import React from 'react'
 import HeroBanner from '../Home/HeroBanner'
 import MottoStrip from '../Home/MottoStrip'
-import About from '../Home/About'
+import About from '../Home/HomeAbout'
 import PrayerRequest from '../Home/PrayerRequest'
 import Members from '../Home/Members'
 
