@@ -18,5 +18,8 @@ export default defineConfig({
       },
     },
   },
+  preview: {
+    allowedHosts: [".onrender.com", "localhost"],
+  },
 });
 
