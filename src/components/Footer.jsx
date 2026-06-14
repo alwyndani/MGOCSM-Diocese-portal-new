@@ -13,6 +13,7 @@ const Footer = () => {
 
         {/* ===== Brand Section ===== */}
         <div className="space-y-6">
+          <h1>TEST DEPLOYMENT 14 JUNE</h1>
           <h2 className="text-3xl text-white font-serif tracking-wide">
             MGOCSM
           </h2>
