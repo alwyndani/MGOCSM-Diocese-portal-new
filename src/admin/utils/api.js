@@ -1,3 +1,5 @@
+import { getApiUrl } from "../../utils/media";
+
 /**
  * Custom API client utility wrapping standard fetch.
  * Automatically handles JSON conversion, authorization headers, and session credentials.
@@ -20,7 +22,7 @@ const handleResponse = async (response) => {
 
 export const api = {
   get: async (url, options = {}) => {
-    const response = await fetch(url, {
+    const response = await fetch(getApiUrl(url), {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -39,7 +41,7 @@ export const api = {
       headers["Content-Type"] = "application/json";
     }
 
-    const response = await fetch(url, {
+    const response = await fetch(getApiUrl(url), {
       method: "POST",
       headers,
       body: isFormData ? body : JSON.stringify(body),
@@ -56,7 +58,7 @@ export const api = {
       headers["Content-Type"] = "application/json";
     }
 
-    const response = await fetch(url, {
+    const response = await fetch(getApiUrl(url), {
       method: "PUT",
       headers,
       body: isFormData ? body : JSON.stringify(body),
@@ -67,7 +69,7 @@ export const api = {
   },
 
   delete: async (url, options = {}) => {
-    const response = await fetch(url, {
+    const response = await fetch(getApiUrl(url), {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",

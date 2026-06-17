@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useParams, Link } from "react-router-dom";
 import mediaImage from "../assets/media.jpg";
-import { getFileUrl } from "../utils/media";
+import { getFileUrl, getApiUrl } from "../utils/media";
 
 export const Media = () => {
   const [activeTab, setActiveTab] = useState("images");
@@ -16,8 +16,8 @@ export const Media = () => {
     if (!eventId) return;
 
     Promise.all([
-      fetch(`/api/content/gallery/${encodeURIComponent(eventId)}`).then(res => res.json()),
-      fetch(`/api/content/events`).then(res => res.json())
+      fetch(getApiUrl(`/api/content/gallery/${encodeURIComponent(eventId)}`)).then(res => res.json()),
+      fetch(getApiUrl(`/api/content/events`)).then(res => res.json())
     ])
       .then(([mediaData, eventsList]) => {
         setMedia(Array.isArray(mediaData) ? mediaData : []);

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { getFileUrl } from "../utils/media";
+import { getFileUrl, getApiUrl } from "../utils/media";
 
 const Card = ({ member, index }) => (
   <motion.div
@@ -44,7 +44,7 @@ const TeamMembers = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/content/team-members")
+    fetch(getApiUrl("/api/content/team-members"))
       .then((res) => res.json())
       .then((data) => {
         setMembers(Array.isArray(data) ? data : []);

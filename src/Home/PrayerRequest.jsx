@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { getApiUrl } from "../utils/media";
 
 const PrayerRequest = () => {
   const [submitted, setSubmitted] = useState(false);
@@ -34,7 +35,7 @@ const PrayerRequest = () => {
     try {
       // 2. Collect all form data entered by the user
       // 8. The form submission should directly trigger the email sending process
-      const response = await fetch("/api/content/prayer-request", {
+      const response = await fetch(getApiUrl("/api/content/prayer-request"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

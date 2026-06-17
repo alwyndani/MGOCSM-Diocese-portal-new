@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import gallery from "../assets/gallery.png";
 import galleryBg from "../assets/galleryBG.jpg";
-import { getFileUrl } from "../utils/media";
+import { getFileUrl, getApiUrl } from "../utils/media";
 
 
 export const EventsPage = () => {
@@ -11,7 +11,7 @@ export const EventsPage = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/content/events")
+    fetch(getApiUrl("/api/content/events"))
       .then((res) => res.json())
       .then((data) => {
         setEvents(Array.isArray(data) ? data : []);

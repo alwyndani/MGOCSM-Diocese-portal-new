@@ -13,3 +13,19 @@ export const getFileUrl = (fieldValue) => {
   }
   return "";
 };
+
+/**
+ * Resolves the full URL for an API endpoint.
+ * Prepends the VITE_API_BASE_URL environment variable if configured.
+ * 
+ * @param {string} path - The API endpoint path.
+ * @returns {string} The full or relative URL.
+ */
+export const getApiUrl = (path) => {
+  const base = import.meta.env.VITE_API_BASE_URL || "";
+  if (base && path.startsWith("/")) {
+    return `${base.replace(/\/$/, "")}${path}`;
+  }
+  return `${base}${path}`;
+};
+

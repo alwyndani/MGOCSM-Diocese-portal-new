@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import about1 from "../assets/about1.jpg";
-import { getFileUrl } from "../utils/media";
+import { getFileUrl, getApiUrl } from "../utils/media";
 
 
 
@@ -10,7 +10,7 @@ const KalpanaViewer = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/content/kalpanas")
+    fetch(getApiUrl("/api/content/kalpanas"))
       .then((res) => res.json())
       .then((data) => {
         setKalpanas(Array.isArray(data) ? data : []);

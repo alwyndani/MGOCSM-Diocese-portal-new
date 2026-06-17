@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { BookOpen, User, Calendar, X, FileText } from "lucide-react";
-import { getFileUrl } from "../utils/media";
+import { getFileUrl, getApiUrl } from "../utils/media";
 
 const Articles = () => {
   const [articles, setArticles] = useState([]);
@@ -9,7 +9,7 @@ const Articles = () => {
   const [selectedArticle, setSelectedArticle] = useState(null);
 
   useEffect(() => {
-    fetch("/api/content/articles")
+    fetch(getApiUrl("/api/content/articles"))
       .then((res) => res.json())
       .then((data) => {
         setArticles(Array.isArray(data) ? data : []);
