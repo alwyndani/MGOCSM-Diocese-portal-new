@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import { getFileUrl } from "../../utils/media";
 
 const GalleryManage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -228,19 +229,23 @@ const GalleryManage = () => {
               
               {/* Media element or placeholder preview */}
               <div className="w-full h-full bg-slate-900 overflow-hidden relative flex items-center justify-center">
-                {item.type === "IMAGE" ? (
-                  <img src={item.mediaUrl} alt="" className="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
-                ) : (
-                  // If video is local, display video thumbnail. If YouTube link, show link placeholder
-                  item.mediaUrl.startsWith("http") ? (
-                    <div className="text-center p-4">
-                      <ExternalLink size={24} className="text-[#C6A75E] mx-auto mb-2" />
-                      <p className="text-[10px] text-slate-400 line-clamp-1">{item.mediaUrl}</p>
-                    </div>
+                {(() => {
+                  const url = getFileUrl(item.mediaUrl);
+                  const isExternal = url.startsWith("http") && !url.includes("cloudinary.com");
+                  return item.type === "IMAGE" ? (
+                    <img src={url} alt="" className="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
                   ) : (
-                    <video src={item.mediaUrl} className="w-full h-full object-cover" muted />
-                  )
-                )}
+                    // If video is local or Cloudinary, display native video preview. If YouTube link, show link placeholder
+                    isExternal ? (
+                      <div className="text-center p-4">
+                        <ExternalLink size={24} className="text-[#C6A75E] mx-auto mb-2" />
+                        <p className="text-[10px] text-slate-400 line-clamp-1">{url}</p>
+                      </div>
+                    ) : (
+                      <video src={url} className="w-full h-full object-cover" muted />
+                    )
+                  );
+                })()}
 
                 {/* Overlaid badges */}
                 <div className="absolute top-3 left-3">

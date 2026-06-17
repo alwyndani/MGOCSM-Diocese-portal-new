@@ -21,6 +21,7 @@ import {
   Eye
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { getFileUrl } from "../../utils/media";
 
 // Custom Rich Text Editor Component for React 19 compatibility
 const CustomRichTextEditor = ({ value, onChange }) => {
@@ -351,7 +352,7 @@ const ArticlesManage = () => {
                       <div className="flex items-center gap-3">
                         <div className="w-12 h-12 rounded-xl overflow-hidden bg-white/10 flex-shrink-0 border border-white/10">
                           {article.featuredImage ? (
-                            <img src={article.featuredImage} alt="" className="w-full h-full object-cover" />
+                            <img src={getFileUrl(article.featuredImage)} alt="" className="w-full h-full object-cover" />
                           ) : (
                             <ImageIcon size={18} className="text-slate-500 m-auto mt-3" />
                           )}
@@ -522,7 +523,7 @@ const ArticlesManage = () => {
                     </label>
                     <div className="w-full aspect-video md:aspect-square bg-white/5 border border-white/10 rounded-xl overflow-hidden flex items-center justify-center relative group">
                       {imagePreview ? (
-                        <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                        <img src={getFileUrl(imagePreview)} alt="Preview" className="w-full h-full object-cover" />
                       ) : (
                         <ImageIcon size={32} className="text-slate-500" />
                       )}

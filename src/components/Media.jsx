@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useParams, Link } from "react-router-dom";
 import mediaImage from "../assets/media.jpg";
+import { getFileUrl } from "../utils/media";
 
 export const Media = () => {
   const [activeTab, setActiveTab] = useState("images");
@@ -62,7 +63,7 @@ export const Media = () => {
       <section className="relative w-full h-[85vh] flex items-center justify-center overflow-hidden bg-black">
         {eventDetails.featuredImage ? (
           <motion.img
-            src={eventDetails.featuredImage}
+            src={getFileUrl(eventDetails.featuredImage)}
             alt={eventDetails.title}
             initial={{ scale: 1.3 }}
             animate={{ scale: 1 }}
@@ -164,7 +165,7 @@ export const Media = () => {
                   className="relative overflow-hidden rounded-3xl shadow-lg hover:shadow-2xl group border border-slate-200"
                 >
                   <img
-                    src={img.mediaUrl}
+                    src={getFileUrl(img.mediaUrl)}
                     alt={img.title || "Event Gallery"}
                     className="w-full h-72 object-cover transition duration-700 group-hover:scale-105"
                   />
@@ -191,23 +192,27 @@ export const Media = () => {
                   whileHover={{ scale: 1.02 }}
                   className="relative rounded-3xl overflow-hidden shadow-2xl bg-black border border-white/5"
                 >
-                  {video.mediaUrl.startsWith("http") ? (
-                    // External link (e.g. YouTube share link format or regular embed)
-                    <iframe
-                      src={video.mediaUrl.replace("watch?v=", "embed/")}
-                      title={video.title || "Video Player"}
-                      className="w-full h-[60vh] border-none"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                    ></iframe>
-                  ) : (
-                    <video
-                      controls
-                      className="w-full h-[60vh] object-cover"
-                    >
-                      <source src={video.mediaUrl} type="video/mp4" />
-                    </video>
-                  )}
+                  {(() => {
+                    const videoUrl = getFileUrl(video.mediaUrl);
+                    const isExternalEmbed = videoUrl.startsWith("http") && !videoUrl.includes("cloudinary.com");
+                    return isExternalEmbed ? (
+                      // External link (e.g. YouTube share link format or regular embed)
+                      <iframe
+                        src={videoUrl.replace("watch?v=", "embed/")}
+                        title={video.title || "Video Player"}
+                        className="w-full h-[60vh] border-none"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                      ></iframe>
+                    ) : (
+                      <video
+                        controls
+                        className="w-full h-[60vh] object-cover"
+                      >
+                        <source src={videoUrl} type="video/mp4" />
+                      </video>
+                    );
+                  })()}
                   {video.title && (
                     <div className="bg-[#090d16] p-4 border-t border-white/5">
                       <p className="text-slate-300 text-xs font-semibold">{video.title}</p>

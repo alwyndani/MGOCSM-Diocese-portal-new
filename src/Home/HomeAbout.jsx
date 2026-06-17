@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import about1 from "../assets/about1.jpg";
+import { getFileUrl } from "../utils/media";
 
 
 
@@ -61,7 +62,7 @@ const KalpanaViewer = () => {
             </div>
             {kalpana.documentUrl && (
               <a
-                href={kalpana.documentUrl}
+                href={getFileUrl(kalpana.documentUrl)}
                 target="_blank"
                 rel="noreferrer"
                 className="mt-6 inline-flex items-center justify-center gap-2 px-5 py-3 border border-[#DB2D0B] text-[#DB2D0B] hover:bg-[#DB2D0B] hover:text-white rounded-2xl text-xs font-semibold tracking-wider transition-all duration-300 text-center"

@@ -22,7 +22,7 @@ model Kalpana {
   id            String   @id @default(auto()) @map("_id") @db.ObjectId
   title         String
   description   String?
-  documentUrl   String?
+  documentUrl   Json?
   displayOrder  Int      @default(0)
   isVisible     Boolean  @default(true)
   publishedDate DateTime
@@ -37,7 +37,7 @@ model TeamMember {
   district     String?
   contactEmail String?
   contactPhone String?
-  imageUrl     String?
+  imageUrl     Json?
   displayOrder Int      @default(0)
   createdAt    DateTime @default(now())
 }
@@ -48,7 +48,7 @@ model Event {
   description   String?
   eventDate     DateTime
   location      String?
-  featuredImage String?
+  featuredImage Json?
   isPublished   Boolean        @default(false)
   createdAt     DateTime       @default(now())
   galleryMedia  GalleryMedia[]
@@ -59,7 +59,7 @@ model GalleryMedia {
   eventId      String
   event        Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
   type         String   // IMAGE or VIDEO
-  mediaUrl     String
+  mediaUrl     Json?
   title        String?
   displayOrder Int      @default(0)
   createdAt    DateTime @default(now())
@@ -70,7 +70,7 @@ model Article {
   title         String
   slug          String   @unique
   content       String
-  featuredImage String?
+  featuredImage Json?
   authorName    String
   category      String?
   status        String   @default("DRAFT") // DRAFT, PUBLISHED, ARCHIVED
@@ -88,3 +88,4 @@ model ActivityLog {
   ipAddress   String?
   timestamp   DateTime @default(now())
 }
+

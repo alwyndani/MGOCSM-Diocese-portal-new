@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { getFileUrl } from "../utils/media";
 
 const Card = ({ member, index }) => (
   <motion.div
@@ -17,7 +18,7 @@ const Card = ({ member, index }) => (
           <motion.img
             whileHover={{ scale: 1.05 }}
             transition={{ duration: 0.6 }}
-            src={member.imageUrl}
+            src={getFileUrl(member.imageUrl)}
             alt={member.name}
             className="w-full h-full object-cover"
           />

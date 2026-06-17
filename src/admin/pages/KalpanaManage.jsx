@@ -13,6 +13,7 @@ import {
   ChevronRight
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { getFileUrl } from "../../utils/media";
 
 const KalpanaManage = () => {
   const [kalpanas, setKalpanas] = useState([]);
@@ -458,7 +459,7 @@ const KalpanaManage = () => {
                   </div>
                   {filePreview && (
                     <p className="text-xs text-slate-400 truncate mt-1 flex items-center gap-1">
-                      <span>📄</span> Linked: {filePreview.split("/").pop()}
+                      <span>📄</span> Linked: {getFileUrl(filePreview).split("/").pop()}
                     </p>
                   )}
                 </div>

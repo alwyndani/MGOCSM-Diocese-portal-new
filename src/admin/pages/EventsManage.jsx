@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import { getFileUrl } from "../../utils/media";
 
 const EventsManage = () => {
   const [events, setEvents] = useState([]);
@@ -233,7 +234,7 @@ const EventsManage = () => {
                       <div className="flex items-center gap-3">
                         <div className="w-12 h-12 rounded-xl overflow-hidden bg-white/10 flex-shrink-0 border border-white/10">
                           {event.featuredImage ? (
-                            <img src={event.featuredImage} alt="" className="w-full h-full object-cover" />
+                            <img src={getFileUrl(event.featuredImage)} alt="" className="w-full h-full object-cover" />
                           ) : (
                             <ImageIcon size={18} className="text-slate-500 m-auto mt-3" />
                           )}
@@ -409,7 +410,7 @@ const EventsManage = () => {
                   <div className="flex gap-4 items-center">
                     <div className="w-20 h-20 bg-white/5 border border-white/10 rounded-xl overflow-hidden flex items-center justify-center flex-shrink-0">
                       {imagePreview ? (
-                        <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                        <img src={getFileUrl(imagePreview)} alt="Preview" className="w-full h-full object-cover" />
                       ) : (
                         <ImageIcon size={24} className="text-slate-500" />
                       )}

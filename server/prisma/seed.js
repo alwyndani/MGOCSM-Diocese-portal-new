@@ -123,7 +123,7 @@ async function main() {
         designation: m.designation,
         category: m.category,
         district: m.district || null,
-        imageUrl: dbImagePath,
+        imageUrl: dbImagePath ? { imageUrl: dbImagePath, publicId: `mock-${m.image}` } : null,
         displayOrder: m.displayOrder,
       }
     });
@@ -151,7 +151,7 @@ async function main() {
         id: e.id,
         title: e.title,
         eventDate: new Date(e.date),
-        featuredImage: featuredImgPath,
+        featuredImage: featuredImgPath ? { imageUrl: featuredImgPath, publicId: `mock-${e.image}` } : null,
         location: e.location,
         description: e.description,
         isPublished: true,
@@ -217,7 +217,7 @@ async function main() {
         data: {
           eventId,
           type: "IMAGE",
-          mediaUrl: dbImgPath,
+          mediaUrl: dbImgPath ? { imageUrl: dbImgPath, publicId: `mock-${img}` } : null,
           displayOrder: ++order,
         }
       });
@@ -229,7 +229,7 @@ async function main() {
         data: {
           eventId,
           type: "VIDEO",
-          mediaUrl: dbVidPath,
+          mediaUrl: dbVidPath ? { imageUrl: dbVidPath, publicId: `mock-${vid}` } : null,
           displayOrder: ++order,
         }
       });
@@ -243,7 +243,7 @@ async function main() {
       title: "Orthodox Spirituality in the 21st Century",
       slug: "orthodox-spirituality-21st-century",
       content: "<p>Orthodox spirituality is fundamentally therapeutic in its approach. This article explores how the ancient prayer practices of the church offer solace in our fast-paced modern world...</p>",
-      featuredImage: "/uploads/silentium.jpeg",
+      featuredImage: { imageUrl: "/uploads/silentium.jpeg", publicId: "mock-silentium" },
       authorName: "Rev. Fr. Rijosh George",
       category: "Spiritual",
       status: "PUBLISHED",
@@ -256,7 +256,8 @@ async function main() {
       title: "The Motto: Worship, Study, Service",
       slug: "motto-worship-study-service",
       content: "<p>The core values of MGOCSM revolve around three pillars: Worship, Study, and Service. By understanding these concepts, our students find their spiritual compass...</p>",
-      featuredImage: "/uploads/educa.jpeg",
+      featuredImage: { imageUrl: "/uploads/educa.jpeg",
+        publicId: "mock-educa" },
       authorName: "Dr. Jomy Linu",
       category: "Theological",
       status: "PUBLISHED",

@@ -3,6 +3,8 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import gallery from "../assets/gallery.png";
 import galleryBg from "../assets/galleryBG.jpg";
+import { getFileUrl } from "../utils/media";
+
 
 export const EventsPage = () => {
   const [events, setEvents] = useState([]);
@@ -127,7 +129,7 @@ export const EventsPage = () => {
               >
                 <div className="overflow-hidden rounded-3xl shadow-2xl group">
                   <img
-                    src={featured.featuredImage || galleryBg}
+                    src={getFileUrl(featured.featuredImage) || galleryBg}
                     alt={featured.title}
                     className="w-full h-[350px] md:h-[450px] object-cover transform group-hover:scale-110 transition duration-700"
                   />
@@ -168,7 +170,7 @@ export const EventsPage = () => {
                   >
                     <div className="relative overflow-hidden h-64">
                       <img
-                        src={event.featuredImage || galleryBg}
+                        src={getFileUrl(event.featuredImage) || galleryBg}
                         alt={event.title}
                         className="w-full h-full object-cover transform group-hover:scale-110 transition duration-700"
                       />

@@ -10,6 +10,7 @@ import {
   ChevronDown
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { getFileUrl } from "../../utils/media";
 
 const AboutManage = () => {
   const [members, setMembers] = useState([]);
@@ -253,7 +254,7 @@ const AboutManage = () => {
               <div className="flex flex-col items-center text-center mt-4">
                 <div className="w-20 h-20 rounded-full overflow-hidden bg-white/10 border border-white/10 flex items-center justify-center mb-4 relative">
                   {member.imageUrl ? (
-                    <img src={member.imageUrl} alt={member.name} className="w-full h-full object-cover" />
+                    <img src={getFileUrl(member.imageUrl)} alt={member.name} className="w-full h-full object-cover" />
                   ) : (
                     <User size={36} className="text-slate-500" />
                   )}
@@ -379,7 +380,7 @@ const AboutManage = () => {
                 <div className="flex flex-col items-center gap-3">
                   <div className="w-24 h-24 rounded-full overflow-hidden bg-white/5 border border-white/10 flex items-center justify-center relative group">
                     {imagePreview ? (
-                      <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                      <img src={getFileUrl(imagePreview)} alt="Preview" className="w-full h-full object-cover" />
                     ) : (
                       <User size={40} className="text-slate-500" />
                     )}

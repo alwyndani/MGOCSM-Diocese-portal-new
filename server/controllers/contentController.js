@@ -4,22 +4,50 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { logActivity } from "../utils/logger.js";
 import { sanitizeHTML } from "../utils/sanitizer.js";
+import { uploadToCloudinary, deleteFromCloudinary } from "../utils/cloudinary.js";
 
 const prisma = new PrismaClient();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Helper to remove files from uploads directory
-const removeFile = (fileUrl) => {
-  if (!fileUrl || !fileUrl.startsWith("/uploads/")) return;
-  const fileName = fileUrl.replace("/uploads/", "");
-  const filePath = path.resolve(__dirname, "../uploads", fileName);
-  if (fs.existsSync(filePath)) {
+// Helper to remove temporary local files uploaded by multer
+const removeLocalFile = (filePath) => {
+  if (filePath && fs.existsSync(filePath)) {
     try {
       fs.unlinkSync(filePath);
     } catch (err) {
-      console.error(`Failed to delete local file ${fileName}:`, err.message);
+      console.error(`Failed to delete temporary local file: ${err.message}`);
+    }
+  }
+};
+
+// Helper to remove files (locally or from Cloudinary)
+const removeFile = async (fileUrlOrObj, resourceType = "image") => {
+  if (!fileUrlOrObj) return;
+
+  // 1. If it's a string, it's a legacy local file path
+  if (typeof fileUrlOrObj === "string") {
+    if (!fileUrlOrObj.startsWith("/uploads/")) return;
+    const fileName = fileUrlOrObj.replace("/uploads/", "");
+    const filePath = path.resolve(__dirname, "../uploads", fileName);
+    if (fs.existsSync(filePath)) {
+      try {
+        fs.unlinkSync(filePath);
+      } catch (err) {
+        console.error(`Failed to delete local file ${fileName}:`, err.message);
+      }
+    }
+    return;
+  }
+
+  // 2. If it's a Cloudinary metadata object
+  if (typeof fileUrlOrObj === "object" && fileUrlOrObj !== null && fileUrlOrObj.publicId) {
+    try {
+      const type = fileUrlOrObj.resourceType || resourceType;
+      await deleteFromCloudinary(fileUrlOrObj.publicId, type);
+    } catch (err) {
+      console.error(`Failed to delete Cloudinary file with publicId ${fileUrlOrObj.publicId}:`, err.message);
     }
   }
 };
@@ -118,7 +146,16 @@ export const createKalpana = async (req, res) => {
       return res.status(400).json({ error: "Title and Published Date are required." });
     }
 
-    const documentUrl = req.file ? `/uploads/${req.file.filename}` : null;
+    let documentUrl = null;
+    if (req.file) {
+      const uploadResult = await uploadToCloudinary(req.file.path, "kalpanas", "auto");
+      documentUrl = {
+        imageUrl: uploadResult.imageUrl,
+        publicId: uploadResult.publicId,
+        resourceType: uploadResult.resourceType
+      };
+      removeLocalFile(req.file.path);
+    }
 
     const newKalpana = await prisma.kalpana.create({
       data: {
@@ -135,6 +172,7 @@ export const createKalpana = async (req, res) => {
 
     return res.status(201).json(newKalpana);
   } catch (err) {
+    if (req.file) removeLocalFile(req.file.path);
     console.error("Create Kalpana Error:", err.message);
     return res.status(500).json({ error: "Failed to create Kalpana." });
   }
@@ -162,10 +200,16 @@ export const updateKalpana = async (req, res) => {
 
     if (req.file) {
       // Delete old file
-      removeFile(currentKalpana.documentUrl);
-      documentUrl = `/uploads/${req.file.filename}`;
+      await removeFile(currentKalpana.documentUrl, "raw");
+      const uploadResult = await uploadToCloudinary(req.file.path, "kalpanas", "auto");
+      documentUrl = {
+        imageUrl: uploadResult.imageUrl,
+        publicId: uploadResult.publicId,
+        resourceType: uploadResult.resourceType
+      };
+      removeLocalFile(req.file.path);
     } else if (removeDocument === "true" || removeDocument === true) {
-      removeFile(currentKalpana.documentUrl);
+      await removeFile(currentKalpana.documentUrl, "raw");
       documentUrl = null;
     }
 
@@ -185,6 +229,7 @@ export const updateKalpana = async (req, res) => {
 
     return res.json(updatedKalpana);
   } catch (err) {
+    if (req.file) removeLocalFile(req.file.path);
     console.error("Update Kalpana Error:", err.message);
     return res.status(500).json({ error: "Failed to update Kalpana." });
   }
@@ -208,7 +253,7 @@ export const deleteKalpana = async (req, res) => {
     }
 
     // Unlink file
-    removeFile(currentKalpana.documentUrl);
+    await removeFile(currentKalpana.documentUrl, "raw");
 
     await prisma.kalpana.delete({
       where: { id }
@@ -254,7 +299,16 @@ export const createTeamMember = async (req, res) => {
       return res.status(400).json({ error: "Invalid category definition." });
     }
 
-    const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
+    let imageUrl = null;
+    if (req.file) {
+      const uploadResult = await uploadToCloudinary(req.file.path, "team_members", "image");
+      imageUrl = {
+        imageUrl: uploadResult.imageUrl,
+        publicId: uploadResult.publicId,
+        resourceType: uploadResult.resourceType
+      };
+      removeLocalFile(req.file.path);
+    }
 
     const newMember = await prisma.teamMember.create({
       data: {
@@ -273,6 +327,7 @@ export const createTeamMember = async (req, res) => {
 
     return res.status(201).json(newMember);
   } catch (err) {
+    if (req.file) removeLocalFile(req.file.path);
     console.error("Create Member Error:", err.message);
     return res.status(500).json({ error: "Failed to create profile." });
   }
@@ -296,10 +351,16 @@ export const updateTeamMember = async (req, res) => {
     let imageUrl = member.imageUrl;
 
     if (req.file) {
-      removeFile(member.imageUrl);
-      imageUrl = `/uploads/${req.file.filename}`;
+      await removeFile(member.imageUrl, "image");
+      const uploadResult = await uploadToCloudinary(req.file.path, "team_members", "image");
+      imageUrl = {
+        imageUrl: uploadResult.imageUrl,
+        publicId: uploadResult.publicId,
+        resourceType: uploadResult.resourceType
+      };
+      removeLocalFile(req.file.path);
     } else if (removeImage === "true" || removeImage === true) {
-      removeFile(member.imageUrl);
+      await removeFile(member.imageUrl, "image");
       imageUrl = null;
     }
 
@@ -321,6 +382,7 @@ export const updateTeamMember = async (req, res) => {
 
     return res.json(updated);
   } catch (err) {
+    if (req.file) removeLocalFile(req.file.path);
     console.error("Update Member Error:", err.message);
     return res.status(500).json({ error: "Failed to update profile." });
   }
@@ -340,7 +402,7 @@ export const deleteTeamMember = async (req, res) => {
       return res.status(404).json({ error: "Leadership profile not found." });
     }
 
-    removeFile(member.imageUrl);
+    await removeFile(member.imageUrl, "image");
 
     await prisma.teamMember.delete({ where: { id } });
 
@@ -442,7 +504,16 @@ export const createEvent = async (req, res) => {
       return res.status(400).json({ error: "An event with this name/slug already exists." });
     }
 
-    const featuredImage = req.file ? `/uploads/${req.file.filename}` : null;
+    let featuredImage = null;
+    if (req.file) {
+      const uploadResult = await uploadToCloudinary(req.file.path, "events", "image");
+      featuredImage = {
+        imageUrl: uploadResult.imageUrl,
+        publicId: uploadResult.publicId,
+        resourceType: uploadResult.resourceType
+      };
+      removeLocalFile(req.file.path);
+    }
 
     const newEvent = await prisma.event.create({
       data: {
@@ -460,6 +531,7 @@ export const createEvent = async (req, res) => {
 
     return res.status(201).json(newEvent);
   } catch (err) {
+    if (req.file) removeLocalFile(req.file.path);
     console.error("Create Event Error:", err.message);
     return res.status(500).json({ error: "Failed to create event." });
   }
@@ -479,10 +551,16 @@ export const updateEvent = async (req, res) => {
     let featuredImage = event.featuredImage;
 
     if (req.file) {
-      removeFile(event.featuredImage);
-      featuredImage = `/uploads/${req.file.filename}`;
+      await removeFile(event.featuredImage, "image");
+      const uploadResult = await uploadToCloudinary(req.file.path, "events", "image");
+      featuredImage = {
+        imageUrl: uploadResult.imageUrl,
+        publicId: uploadResult.publicId,
+        resourceType: uploadResult.resourceType
+      };
+      removeLocalFile(req.file.path);
     } else if (removeImage === "true" || removeImage === true) {
-      removeFile(event.featuredImage);
+      await removeFile(event.featuredImage, "image");
       featuredImage = null;
     }
 
@@ -502,6 +580,7 @@ export const updateEvent = async (req, res) => {
 
     return res.json(updated);
   } catch (err) {
+    if (req.file) removeLocalFile(req.file.path);
     console.error("Update Event Error:", err.message);
     return res.status(500).json({ error: "Failed to update event." });
   }
@@ -522,11 +601,11 @@ export const deleteEvent = async (req, res) => {
     }
 
     // Remove featured image
-    removeFile(event.featuredImage);
+    await removeFile(event.featuredImage, "image");
 
-    // Remove all associated gallery files on disk
+    // Remove all associated gallery files on disk/Cloudinary
     for (const item of event.galleryMedia) {
-      removeFile(item.mediaUrl);
+      await removeFile(item.mediaUrl, item.type === "VIDEO" ? "video" : "image");
     }
 
     // Delete event (Prisma Cascade will delete GalleryMedia records)
@@ -570,6 +649,7 @@ export const uploadGalleryMedia = async (req, res) => {
   try {
     const event = await prisma.event.findUnique({ where: { id: eventId } });
     if (!event) {
+      if (req.files) req.files.forEach(file => removeLocalFile(file.path));
       return res.status(404).json({ error: "Event does not exist." });
     }
 
@@ -586,20 +666,32 @@ export const uploadGalleryMedia = async (req, res) => {
       let orderIndex = nextOrder;
 
       for (const file of req.files) {
-        // Simple type check
-        const ext = path.extname(file.originalname).toLowerCase();
-        const type = [".mp4", ".mov", ".mkv"].includes(ext) ? "VIDEO" : "IMAGE";
+        try {
+          // Simple type check
+          const ext = path.extname(file.originalname).toLowerCase();
+          const isVideo = [".mp4", ".mov", ".mkv"].includes(ext);
+          const type = isVideo ? "VIDEO" : "IMAGE";
+          const resourceType = isVideo ? "video" : "image";
 
-        const rec = await prisma.galleryMedia.create({
-          data: {
-            eventId,
-            type,
-            mediaUrl: `/uploads/${file.filename}`,
-            title: file.originalname,
-            displayOrder: orderIndex++,
-          }
-        });
-        records.push(rec);
+          const uploadResult = await uploadToCloudinary(file.path, "gallery", resourceType);
+
+          const rec = await prisma.galleryMedia.create({
+            data: {
+              eventId,
+              type,
+              mediaUrl: {
+                imageUrl: uploadResult.imageUrl,
+                publicId: uploadResult.publicId,
+                resourceType: uploadResult.resourceType
+              },
+              title: file.originalname,
+              displayOrder: orderIndex++,
+            }
+          });
+          records.push(rec);
+        } finally {
+          removeLocalFile(file.path);
+        }
       }
 
       await logActivity(req.user.id, "CREATE", "Gallery", `Uploaded ${records.length} files to event "${event.title}"`, req);
@@ -616,7 +708,7 @@ export const uploadGalleryMedia = async (req, res) => {
         data: {
           eventId,
           type: mediaType,
-          mediaUrl: externalUrl,
+          mediaUrl: externalUrl, // keep as external url string
           title: caption || null,
           displayOrder: parseInt(displayOrder, 10) || nextOrder,
         }
@@ -628,6 +720,7 @@ export const uploadGalleryMedia = async (req, res) => {
 
     return res.status(400).json({ error: "No media files uploaded or links provided." });
   } catch (err) {
+    if (req.files) req.files.forEach(file => removeLocalFile(file.path));
     console.error("Upload Media Error:", err.message);
     return res.status(500).json({ error: "Failed to upload gallery media." });
   }
@@ -651,8 +744,8 @@ export const deleteGalleryMedia = async (req, res) => {
       return res.status(404).json({ error: "Gallery media record not found." });
     }
 
-    // Delete disk file
-    removeFile(item.mediaUrl);
+    // Delete file from disk/Cloudinary
+    await removeFile(item.mediaUrl, item.type === "VIDEO" ? "video" : "image");
 
     // Delete record
     await prisma.galleryMedia.delete({ where: { id: mediaId } });
@@ -769,7 +862,16 @@ export const createArticle = async (req, res) => {
     // Sanitize the HTML rich-text
     const cleanContent = sanitizeHTML(content);
 
-    const featuredImage = req.file ? `/uploads/${req.file.filename}` : null;
+    let featuredImage = null;
+    if (req.file) {
+      const uploadResult = await uploadToCloudinary(req.file.path, "articles", "image");
+      featuredImage = {
+        imageUrl: uploadResult.imageUrl,
+        publicId: uploadResult.publicId,
+        resourceType: uploadResult.resourceType
+      };
+      removeLocalFile(req.file.path);
+    }
 
     const newArticle = await prisma.article.create({
       data: {
@@ -788,6 +890,7 @@ export const createArticle = async (req, res) => {
 
     return res.status(201).json(newArticle);
   } catch (err) {
+    if (req.file) removeLocalFile(req.file.path);
     console.error("Create Article Error:", err.message);
     return res.status(500).json({ error: "Failed to write article." });
   }
@@ -811,10 +914,16 @@ export const updateArticle = async (req, res) => {
     let featuredImage = article.featuredImage;
 
     if (req.file) {
-      removeFile(article.featuredImage);
-      featuredImage = `/uploads/${req.file.filename}`;
+      await removeFile(article.featuredImage, "image");
+      const uploadResult = await uploadToCloudinary(req.file.path, "articles", "image");
+      featuredImage = {
+        imageUrl: uploadResult.imageUrl,
+        publicId: uploadResult.publicId,
+        resourceType: uploadResult.resourceType
+      };
+      removeLocalFile(req.file.path);
     } else if (removeImage === "true" || removeImage === true) {
-      removeFile(article.featuredImage);
+      await removeFile(article.featuredImage, "image");
       featuredImage = null;
     }
 
@@ -850,6 +959,7 @@ export const updateArticle = async (req, res) => {
 
     return res.json(updated);
   } catch (err) {
+    if (req.file) removeLocalFile(req.file.path);
     console.error("Update Article Error:", err.message);
     return res.status(500).json({ error: "Failed to update article." });
   }
@@ -869,7 +979,7 @@ export const deleteArticle = async (req, res) => {
       return res.status(404).json({ error: "Article not found." });
     }
 
-    removeFile(article.featuredImage);
+    await removeFile(article.featuredImage, "image");
 
     await prisma.article.delete({ where: { id } });
 

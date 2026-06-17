@@ -22,3 +22,10 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Media and large binary files
+*.mp4
+*.mov
+*.mkv
+*.webm
+

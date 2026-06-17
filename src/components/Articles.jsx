@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { BookOpen, User, Calendar, X, FileText } from "lucide-react";
+import { getFileUrl } from "../utils/media";
 
 const Articles = () => {
   const [articles, setArticles] = useState([]);
@@ -97,7 +98,7 @@ const Articles = () => {
                   {/* Article Featured image preview */}
                   <div className="aspect-video w-full rounded-2xl overflow-hidden bg-slate-100 mb-6 border border-slate-100 flex items-center justify-center">
                     {article.featuredImage ? (
-                      <img src={article.featuredImage} alt="" className="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
+                      <img src={getFileUrl(article.featuredImage)} alt="" className="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
                     ) : (
                       <BookOpen size={28} className="text-slate-300" />
                     )}
@@ -162,7 +163,7 @@ const Articles = () => {
               {/* Reader Cover Photo */}
               {selectedArticle.featuredImage && (
                 <div className="w-full aspect-[21/9] rounded-2xl overflow-hidden bg-slate-100 mb-8 border border-slate-200">
-                  <img src={selectedArticle.featuredImage} alt="" className="w-full h-full object-cover" />
+                  <img src={getFileUrl(selectedArticle.featuredImage)} alt="" className="w-full h-full object-cover" />
                 </div>
               )}
 
