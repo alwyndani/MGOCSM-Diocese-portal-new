@@ -20,14 +20,24 @@ const handleResponse = async (response) => {
   return data;
 };
 
+const getHeaders = (optionsHeaders = {}, isFormData = false) => {
+  const headers = { ...optionsHeaders };
+  if (!isFormData) {
+    headers["Content-Type"] = "application/json";
+  }
+  const token = localStorage.getItem("admin_token");
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+  return headers;
+};
+
 export const api = {
   get: async (url, options = {}) => {
+    const headers = getHeaders(options.headers);
     const response = await fetch(getApiUrl(url), {
       method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        ...options.headers,
-      },
+      headers,
       credentials: "include",
       ...options,
     });
@@ -36,10 +46,7 @@ export const api = {
 
   post: async (url, body, options = {}) => {
     const isFormData = body instanceof FormData;
-    const headers = { ...options.headers };
-    if (!isFormData) {
-      headers["Content-Type"] = "application/json";
-    }
+    const headers = getHeaders(options.headers, isFormData);
 
     const response = await fetch(getApiUrl(url), {
       method: "POST",
@@ -53,10 +60,7 @@ export const api = {
 
   put: async (url, body, options = {}) => {
     const isFormData = body instanceof FormData;
-    const headers = { ...options.headers };
-    if (!isFormData) {
-      headers["Content-Type"] = "application/json";
-    }
+    const headers = getHeaders(options.headers, isFormData);
 
     const response = await fetch(getApiUrl(url), {
       method: "PUT",
@@ -69,12 +73,10 @@ export const api = {
   },
 
   delete: async (url, options = {}) => {
+    const headers = getHeaders(options.headers);
     const response = await fetch(getApiUrl(url), {
       method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-        ...options.headers,
-      },
+      headers,
       credentials: "include",
       ...options,
     });

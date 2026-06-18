@@ -13,9 +13,11 @@ export const AuthProvider = ({ children }) => {
       if (data && data.admin) {
         setUser(data.admin);
       } else {
+        localStorage.removeItem("admin_token");
         setUser(null);
       }
     } catch (err) {
+      localStorage.removeItem("admin_token");
       setUser(null);
     } finally {
       setLoading(false);
@@ -31,10 +33,14 @@ export const AuthProvider = ({ children }) => {
     try {
       const data = await api.post("/api/auth/login", { username, password });
       if (data && data.admin) {
+        if (data.token) {
+          localStorage.setItem("admin_token", data.token);
+        }
         setUser(data.admin);
       }
       return data.admin;
     } catch (err) {
+      localStorage.removeItem("admin_token");
       setUser(null);
       throw err;
     } finally {
@@ -49,6 +55,7 @@ export const AuthProvider = ({ children }) => {
     } catch (err) {
       console.error("Logout request failed:", err);
     } finally {
+      localStorage.removeItem("admin_token");
       setUser(null);
       setLoading(false);
     }
