@@ -27,7 +27,7 @@ const Contact = () => {
       </div>
 
       {/* ================= HERO ================= */}
-      <section className="relative z-10 pt-32 pb-20 px-6 text-center">
+      <section className="relative z-10 pt-33 pb-20 px-6 text-center">
 
         <motion.p
           initial={{ opacity: 0, y: 20 }}

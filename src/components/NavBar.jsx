@@ -37,15 +37,15 @@ const Navbar = () => {
   return (
     <>
       {/* ================= NAVBAR ================= */}
-      <nav className="fixed w-full z-50 px-4 md:px-8 top-4">
+      <nav className="fixed w-full z-50 px-4 md:px-8 top-1">
         <div
-          className={`mx-auto max-w-7xl transition-all duration-500 rounded-2xl
+          className={`mx-auto max-w-7xl transition-all duration-500 rounded-[10px]
           ${scrolled
-              ? "bg-white/70 backdrop-blur-2xl shadow-2xl border border-white/30"
-              : "bg-white/30 backdrop-blur-xl"
+              ? "bg-white/80 backdrop-blur-2xl shadow-2xl border border-white/30"
+              : "bg-white/30 backdrop-blur-2xl"
             }`}
         >
-          <div className="flex items-center justify-between px-4 py-2 md:px-8">
+          <div className="flex items-center justify-between px-4 py-0 md:px-8">
             {/* LOGO */}
             <Link to="/">
               <motion.img
@@ -78,8 +78,8 @@ const Navbar = () => {
                     )}
                     <span
                       className={`relative z-10 ${isActive
-                          ? "text-white"
-                          : "text-gray-800 hover:text-[#DB2D0B]"
+                        ? "text-white"
+                        : "text-gray-800 hover:text-[#DB2D0B]"
                         }`}
                     >
                       {link.name}
@@ -140,7 +140,7 @@ const Navbar = () => {
             >
               {/* Close Button Header */}
               <div className="flex justify-end mb-8">
-                <button 
+                <button
                   onClick={() => setIsOpen(false)}
                   className="p-2 rounded-full hover:bg-gray-200/50 transition-colors"
                 >
@@ -209,7 +209,7 @@ const Navbar = () => {
                 })}
               </div>
 
-    
+
             </motion.div>
           </>
         )}
